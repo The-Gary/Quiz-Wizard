@@ -6,29 +6,64 @@ using TMPro;
 
 public class Quiz : MonoBehaviour
 {
+    [Header("Questions")]
     [SerializeField]
     TextMeshProUGUI questionText;
 
     [SerializeField]
     QuestionSO question;
 
+    [Header("Answers")]
     [SerializeField]
     GameObject[] answerButtons;
 
     int correctAnswerIndex;
+    bool hasAnsweredEarly;
 
+    [Header("Button Colors")]
     [SerializeField]
     Sprite defaultAnswerSprite;
 
     [SerializeField]
     Sprite correctAnswerSprite;
 
+    [Header("Timer")]
+    [SerializeField]
+    Image timerImage;
+
+    Timer timer;
+
     void Start()
     {
+        timer = FindObjectOfType<Timer>();
         GetNextQuestion();
     }
 
+    void Update()
+    {
+        timerImage.fillAmount = timer.fillFraction;
+        if (timer.loadNextQuestion)
+        {
+            hasAnsweredEarly = false;
+            GetNextQuestion();
+            timer.loadNextQuestion = false;
+        }
+        else if (!hasAnsweredEarly && !timer.isAnsweringQuestion)
+        {
+            DisplayAnswer(-1);
+            SetButtonState(false);
+        }
+    }
+
     public void OnAnswerSelected(int idx)
+    {
+        hasAnsweredEarly = true;
+        DisplayAnswer(idx);
+        SetButtonState(false);
+        timer.CancelTimer();
+    }
+
+    void DisplayAnswer(int idx)
     {
         int correctAnswerIndex = question.GetCorrectAnswerIndex();
         Image buttonImage;
@@ -44,7 +79,6 @@ public class Quiz : MonoBehaviour
             buttonImage = answerButtons[correctAnswerIndex].GetComponent<Image>();
         }
         buttonImage.sprite = correctAnswerSprite;
-        SetButtonState(false);
     }
 
     void GetNextQuestion()

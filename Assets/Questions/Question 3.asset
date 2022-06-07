@@ -15,7 +15,7 @@ MonoBehaviour:
   question: Which American president appears on a one-dollar bill?
   answers:
   - I don't know.. I'm broke
-  - Donald Trump
-  - A toothbrush
   - George Washington
-  correctAnswerIndex: 0
+  - A toothbrush
+  - Donald Trump
+  correctAnswerIndex: 1
