@@ -9,13 +9,13 @@ public class Quiz : MonoBehaviour
     [Header("Questions")]
     [SerializeField] TextMeshProUGUI questionText;
 
-    [SerializeField] List<QuestionSO> questions = new List<QuestionSO>();
+    [SerializeField] List<QuestionSO> questions = new();
     QuestionSO currentQuestion;
 
     [Header("Answers")]
     [SerializeField] GameObject[] answerButtons;
     int correctAnswerIndex;
-    bool hasAnsweredEarly;
+    bool hasAnsweredEarly = true;
 
     [Header("Button Colors")]
     [SerializeField] Sprite defaultAnswerSprite;
@@ -35,16 +35,22 @@ public class Quiz : MonoBehaviour
 
     public bool isComplete;
 
-    void Start()
+    void Awake()
     {
         timer = FindObjectOfType<Timer>();
         scoreKeeper = FindObjectOfType<ScoreKeeper>();
         progressBar.maxValue = questions.Count;
-        progressBar.value = 0;   
+        progressBar.value = 0;
     }
 
     void Update()
     {
+        if (progressBar.value == progressBar.maxValue)
+        {
+            isComplete = true;
+            return;
+        }
+        
         timerImage.fillAmount = timer.fillFraction;
         if (timer.loadNextQuestion)
         {
@@ -66,14 +72,11 @@ public class Quiz : MonoBehaviour
         SetButtonState(false);
         timer.CancelTimer();
         scoreText.text = "Score: " + scoreKeeper.CalculateScore() + "%";
-
-        if (progressBar.value == progressBar.maxValue)
-            isComplete = true;
     }
 
     void DisplayAnswer(int idx)
     {
-        int correctAnswerIndex = currentQuestion.GetCorrectAnswerIndex();
+        correctAnswerIndex = currentQuestion.GetCorrectAnswerIndex();
         Image buttonImage;
         if (idx == correctAnswerIndex)
         {
