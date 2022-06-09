@@ -11,12 +11,12 @@ public class Quiz : MonoBehaviour
     TextMeshProUGUI questionText;
 
     [SerializeField]
-    QuestionSO question;
+    List<QuestionSO> questions = new List<QuestionSO>();
+    QuestionSO currentQuestion;
 
     [Header("Answers")]
     [SerializeField]
     GameObject[] answerButtons;
-
     int correctAnswerIndex;
     bool hasAnsweredEarly;
 
@@ -30,13 +30,11 @@ public class Quiz : MonoBehaviour
     [Header("Timer")]
     [SerializeField]
     Image timerImage;
-
     Timer timer;
 
     void Start()
     {
         timer = FindObjectOfType<Timer>();
-        GetNextQuestion();
     }
 
     void Update()
@@ -65,7 +63,7 @@ public class Quiz : MonoBehaviour
 
     void DisplayAnswer(int idx)
     {
-        int correctAnswerIndex = question.GetCorrectAnswerIndex();
+        int correctAnswerIndex = currentQuestion.GetCorrectAnswerIndex();
         Image buttonImage;
         if (idx == correctAnswerIndex)
         {
@@ -75,7 +73,8 @@ public class Quiz : MonoBehaviour
         else
         {
             questionText.text =
-                "Incorrect! The correct answer is:\n" + question.GetAnswer(correctAnswerIndex);
+                "Incorrect! The correct answer is:\n"
+                + currentQuestion.GetAnswer(correctAnswerIndex);
             buttonImage = answerButtons[correctAnswerIndex].GetComponent<Image>();
         }
         buttonImage.sprite = correctAnswerSprite;
@@ -83,17 +82,30 @@ public class Quiz : MonoBehaviour
 
     void GetNextQuestion()
     {
-        SetButtonState(true);
-        SetDefaultButtonSprites();
-        DisplayQuestion();
+        if (questions.Count > 0)
+        {
+            SetButtonState(true);
+            SetDefaultButtonSprites();
+            GetRandomQuestion();
+            DisplayQuestion();
+        }
+    }
+
+    void GetRandomQuestion()
+    {
+        int idx = Random.Range(0, questions.Count);
+        currentQuestion = questions[idx];
+        if (questions.Contains(currentQuestion))
+            questions.Remove(currentQuestion);
     }
 
     void DisplayQuestion()
     {
-        questionText.text = question.GetQuestion();
+        questionText.text = currentQuestion.GetQuestion();
 
         for (int i = 0; i < answerButtons.Length; i++)
-            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.GetAnswer(i);
+            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text =
+                currentQuestion.GetAnswer(i);
     }
 
     void SetButtonState(bool state)
